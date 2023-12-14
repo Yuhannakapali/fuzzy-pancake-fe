@@ -2,7 +2,7 @@
 
 import React from "react";
 
-const page = () => {
+const Protected = () => {
   if (typeof window !== "undefined") {
     const user = localStorage.getItem("user");
     if (!user) {
@@ -33,4 +33,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Protected;
