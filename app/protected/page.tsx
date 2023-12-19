@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 
 const Protected = () => {
   if (typeof window !== "undefined") {
@@ -10,6 +11,27 @@ const Protected = () => {
     }
   }
 
+  const [file, setFile] = useState<File>();
+
+  const uploadFile = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!file) return;
+
+    try {
+      const data = new FormData();
+      data.append("file", file);
+
+      const res = await axios.post("http://localhost:8000/api/upload", data,{
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log(res.data);
+    } catch (e: any) {
+      console.error(e);
+    }
+  };
   return (
     <>
       <main>
@@ -17,7 +39,19 @@ const Protected = () => {
           This is the protected route but you can access it as you are logged in
         </div>
         <div>
-          <input type="text" />
+          <form onSubmit={uploadFile} id="form" name="form">
+            <input
+              type="file"
+              accept="image/*"
+              name="photo"
+              onChange={(e) => setFile(e.target.files?.[0])}
+            />
+            <input
+              type="submit"
+              value="upload"
+              className="border-2 rounded border-blue-700 bg-blue-200"
+            />
+          </form>
         </div>
         <button
           onClick={() => {
