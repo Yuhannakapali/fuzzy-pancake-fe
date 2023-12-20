@@ -1,33 +1,43 @@
 "use client";
 import React, { FormEvent, useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [userInfo, setUserInfo] = useState({
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
+
+  const handleChange = (e:any) => {
+    setUserInfo({...userInfo, [e.target.name]: e.target.value });
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!userInfo.email || !userInfo.password) {
       setError("please fill all the credentials");
       return;
     }
+
     setError("");
     const res = await axios.post("http://localhost:8000/api/login", {
-      email,
-      password,
+    ...userInfo,
+    },{
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if(res.data.user.error) {
+    if (res.data.user.error) {
       setError(res.data.user.error);
       return;
     }
-    console.log(res.data);
+
     if (res.data.user) {
       const user = JSON.stringify(res.data.user);
-      localStorage.setItem("user",user);
+      Cookies.set("user", user, {
+        expires: 0.1,
+      }); 
       window.location.href = "/protected";
     } else {
       setError(res.data.message);
@@ -42,9 +52,9 @@ const Login = () => {
           <input
             type="text"
             id="email"
-            value={email}
             name="email"
-            onChange={(e) => setEmail(e.target.value)}
+            value={userInfo.email}
+            onChange={handleChange}
             className="border-2 border-black"
           />
         </label>
@@ -53,9 +63,9 @@ const Login = () => {
           <input
             type="password"
             id="password"
-            value={password}
             name="password"
-            onChange={(e) => setPassword(e.target.value)}
+            value={userInfo.password}
+            onChange={handleChange}
             className=" border-2 border-black"
           />
         </label>
