@@ -3,35 +3,42 @@ import axios from "axios";
 import React, { FormEvent, useState } from "react";
 
 const Signup = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [newUserInfo, setNewUserInfo] = useState({
+    email: "",  
+    username: "",
+    password: "",
+  });
   const [error, setError] = useState("");
+
+  const handleChange = (e: any) => {
+    setNewUserInfo({ ...newUserInfo, [e.target.name] : e.target.value });
+  };
 
   const signUp = async (e: FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !password) {
+    if (!newUserInfo.username || !newUserInfo.email || !newUserInfo.password) {
       setError("please fill all the credentials");
       return;
     }
     setError("");
-    const res = await axios.post("http://localhost:8000/api/signup", {
-      username: name,
-      email,
-      password,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await axios.post(
+      "http://localhost:8000/api/signup",
+      { ...newUserInfo },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (res.data.newUser.error) {
       setError(res.data.newUser.error);
       return;
     }
-    console.log(res.data);
     if (res.data.newUser) {
       window.location.href = "/login";
     }
   };
+  
 
   return (
     <>
@@ -43,9 +50,10 @@ const Signup = () => {
             <input
               type="text"
               id="name"
-              name="name"
+              name="username"
+              value={newUserInfo.username}
               className="border-2 border-black p-1"
-              onChange={(e) => setName(e.target.value)}
+              onChange={handleChange}
             />
           </label>
           <label htmlFor="email">
@@ -54,8 +62,9 @@ const Signup = () => {
               type="text"
               id="email"
               name="email"
+              value={newUserInfo.email}
               className="border-2 border-black p-1"
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleChange}
             />
           </label>
           <label htmlFor="password">
@@ -64,8 +73,9 @@ const Signup = () => {
               type="password"
               id="password"
               name="password"
+              value={newUserInfo.password}
               className="border-2 border-black p-1"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handleChange}
             />
           </label>
           <button

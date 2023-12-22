@@ -2,16 +2,17 @@
 
 import React, { useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const Protected = () => {
+  const [file, setFile] = useState<File>();
+
   if (typeof window !== "undefined") {
-    const user = localStorage.getItem("user");
+    const user = Cookies.get("user");
     if (!user) {
       window.location.href = "/login";
     }
   }
-
-  const [file, setFile] = useState<File>();
 
   const uploadFile = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,7 +22,7 @@ const Protected = () => {
       const data = new FormData();
       data.append("file", file);
 
-      const res = await axios.post("http://localhost:8000/api/upload", data,{
+      const res = await axios.post("http://localhost:8000/api/upload", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -55,7 +56,7 @@ const Protected = () => {
         </div>
         <button
           onClick={() => {
-            localStorage.removeItem("user");
+            Cookies.remove("user");
             window.location.href = "/";
           }}
           className="border-2 border-blue-700 rounded bg-blue-200"
